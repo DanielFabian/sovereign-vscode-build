@@ -1,0 +1,35 @@
+name: Runner smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - sovereign/reduce-patches
+    paths:
+      - .github/workflows/runner-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  ubuntu-standard-runner:
+    name: Ubuntu standard runner
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Show runner resources
+        shell: bash
+        run: |
+          set -euxo pipefail
+          echo "runner.os=$RUNNER_OS"
+          echo "runner.arch=$RUNNER_ARCH"
+          uname -a
+          nproc
+          free -h
+          df -h
+          docker --version || true
+          git --version
+          node --version || true
+          python3 --version || true
