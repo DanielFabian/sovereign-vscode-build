@@ -14,3 +14,9 @@ Initial local control build used `vscodium/vscodium-linux-build-agent:focal-x64`
 - run `prepare_assets.sh` to produce tar/deb/rpm/CLI assets and checksums.
 
 The first reduction goal is Linux x64 only. Drop public-distribution and extra-platform semantics aggressively, but preserve a buildable path and re-add semantics deliberately.
+
+## 2026-05-05 — Public GitHub-hosted runners change the CI plan
+
+GitHub's standard hosted runners are free and unlimited for public repositories. That changes the initial CI plan: the public GitHub repository should use standard GitHub-hosted runners as the primary build substrate, matching VSCodium more closely. Self-hosted TrueNAS/P620 infrastructure becomes optional fallback/cache/mirror/publisher infrastructure rather than the first build runner.
+
+Important constraints: larger runners are still paid, even for public repositories; Actions artifacts/caches still have storage quota/billing semantics, so intermediate artifacts should use short retention and final distributables should go to GitHub Releases and/or the NAS. Public PR workflows must not receive signing or publishing secrets.
