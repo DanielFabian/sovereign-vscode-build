@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - sovereign/reduce-patches
     paths:
       - .github/workflows/runner-smoke.yml
