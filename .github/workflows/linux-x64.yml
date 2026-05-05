@@ -52,7 +52,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          set -euxo pipefail
+          set -exo pipefail
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           . ./get_repo.sh
           . ./version.sh
@@ -66,13 +66,13 @@ jobs:
       - name: Compile vscode-min-prepack
         shell: bash
         run: |
-          set -euxo pipefail
+          set -exo pipefail
           ./build.sh
 
       - name: Create prepack transfer artifact
         shell: bash
         run: |
-          set -euxo pipefail
+          set -exo pipefail
           find vscode -type f \
             -not -path "*/node_modules/*" \
             -not -path "vscode/.build/node/*" \
@@ -115,7 +115,7 @@ jobs:
       - name: Install Rust for CLI/tunnel build
         shell: bash
         run: |
-          set -euxo pipefail
+          set -exo pipefail
           curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
           . "$HOME/.cargo/env"
@@ -125,7 +125,7 @@ jobs:
       - name: Package tar/deb/rpm/CLI assets
         shell: bash
         run: |
-          set -euxo pipefail
+          set -exo pipefail
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           ls -lh vscode.tar.gz
           ./build/linux/deps.sh
