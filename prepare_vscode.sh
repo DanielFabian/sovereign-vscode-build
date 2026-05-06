@@ -51,13 +51,13 @@ setpath "product" "tipsAndTricksUrl" "https://go.microsoft.com/fwlink/?linkid=85
 setpath "product" "twitterUrl" "https://go.microsoft.com/fwlink/?LinkID=533687"
 
 if [[ "${DISABLE_UPDATE}" != "yes" ]]; then
-  setpath "product" "updateUrl" "https://raw.githubusercontent.com/VSCodium/versions/refs/heads/master"
+  VERSIONS_REPOSITORY="${VERSIONS_REPOSITORY:-${ORG_NAME}/versions}"
+  VERSIONS_BRANCH="${VERSIONS_BRANCH:-master}"
+  UPDATE_URL="${UPDATE_URL:-https://raw.githubusercontent.com/${VERSIONS_REPOSITORY}/refs/heads/${VERSIONS_BRANCH}}"
+  DOWNLOAD_URL="${DOWNLOAD_URL:-https://github.com/${ASSETS_REPOSITORY}/releases}"
 
-  if [[ "${VSCODE_QUALITY}" == "insider" ]]; then
-    setpath "product" "downloadUrl" "https://github.com/VSCodium/vscodium-insiders/releases"
-  else
-    setpath "product" "downloadUrl" "https://github.com/VSCodium/vscodium/releases"
-  fi
+  setpath "product" "updateUrl" "${UPDATE_URL}"
+  setpath "product" "downloadUrl" "${DOWNLOAD_URL}"
 
   # if [[ "${OS_NAME}" == "windows" ]]; then
   #   setpath_json "product" "win32VersionedUpdate" "true"

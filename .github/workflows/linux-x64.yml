@@ -7,6 +7,11 @@ on:
         description: Optional VSCodium-style release version override, e.g. 1.116.03009
         required: false
         type: string
+      publish_release:
+        description: Publish assets to GitHub Releases and update the versions repo
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -17,12 +22,14 @@ concurrency:
 
 env:
   APP_NAME: VSCodium
-  ASSETS_REPOSITORY: VSCodium/vscodium
+  ASSETS_REPOSITORY: ${{ github.repository }}
   BINARY_NAME: codium
-  DISABLE_UPDATE: yes
-  GH_REPO_PATH: VSCodium/vscodium
-  ORG_NAME: VSCodium
+  DISABLE_UPDATE: no
+  GH_REPO_PATH: ${{ github.repository }}
+  ORG_NAME: ${{ github.repository_owner }}
   OS_NAME: linux
+  VERSIONS_REPOSITORY: DanielFabian/sovereign-vscode-versions
+  VERSIONS_BRANCH: main
   VSCODE_QUALITY: stable
   VSCODE_ARCH: x64
   SHOULD_BUILD: yes
@@ -140,3 +147,75 @@ jobs:
           path: assets/*
           retention-days: 1
           if-no-files-found: error
+
+  publish:
+    name: Publish Linux x64 release
+    if: ${{ inputs.publish_release }}
+    needs: [compile, package]
+    runs-on: ubuntu-22.04
+    environment: release
+    permissions:
+      contents: write
+    env:
+      RELEASE_VERSION: ${{ needs.compile.outputs.release_version }}
+      BUILD_SOURCEVERSION: ${{ needs.compile.outputs.build_sourceversion }}
+      MS_TAG: ${{ needs.compile.outputs.ms_tag }}
+      MS_COMMIT: ${{ needs.compile.outputs.ms_commit }}
+    steps:
+      - name: Checkout build repo
+        uses: actions/checkout@v6
+
+      - name: Download Linux x64 assets
+        uses: actions/download-artifact@v5
+        with:
+          name: linux-x64-assets
+          path: assets
+
+      - name: Install GitHub CLI for publishing
+        shell: bash
+        run: |
+          set -exo pipefail
+          ./build/linux/install_gh.sh
+
+      - name: Publish GitHub release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_USERNAME: ${{ github.repository_owner }}
+        run: |
+          set -exo pipefail
+          ./release.sh
+
+      - name: Create versions-repo GitHub App token
+        id: versions-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.SOVEREIGN_PUBLISHER_CLIENT_ID }}
+          private-key: ${{ secrets.SOVEREIGN_PUBLISHER_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: sovereign-vscode-versions
+          permission-contents: write
+
+      - name: Resolve GitHub App bot user
+        id: app-user
+        shell: bash
+        env:
+          GH_TOKEN: ${{ steps.versions-token.outputs.token }}
+          APP_SLUG: ${{ steps.versions-token.outputs.app-slug }}
+        run: |
+          set -euo pipefail
+          user_id=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
+          echo "user_id=${user_id}" >> "$GITHUB_OUTPUT"
+
+      - name: Update versions repository
+        shell: bash
+        env:
+          GH_TOKEN: ${{ steps.versions-token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.versions-token.outputs.token }}
+          GIT_AUTH_USERNAME: x-access-token
+          GIT_COMMIT_USERNAME: ${{ steps.versions-token.outputs.app-slug }}[bot]
+          GIT_COMMIT_EMAIL: ${{ steps.app-user.outputs.user_id }}+${{ steps.versions-token.outputs.app-slug }}[bot]@users.noreply.github.com
+        run: |
+          set -exo pipefail
+          ./update_version.sh

@@ -17,6 +17,9 @@ fi
 
 # Support for GitHub Enterprise
 GH_HOST="${GH_HOST:-github.com}"
+GIT_AUTH_USERNAME="${GIT_AUTH_USERNAME:-x-access-token}"
+GIT_COMMIT_USERNAME="${GIT_COMMIT_USERNAME:-${GITHUB_USERNAME:-CI}}"
+GIT_COMMIT_EMAIL="${GIT_COMMIT_EMAIL:-$( echo "${GIT_COMMIT_USERNAME}" | awk '{print tolower($0)}' )-ci@not-real.com}"
 
 if [[ "${FORCE_UPDATE}" == "true" ]]; then
   . version.sh
@@ -51,6 +54,8 @@ fi
 # `timestamp` is $(node -e 'console.log(Date.now())')
 # `sha256hash` in <filename>.sha256
 
+VERSIONS_REPOSITORY="${VERSIONS_REPOSITORY:-${ORG_NAME}/versions}"
+VERSIONS_BRANCH="${VERSIONS_BRANCH:-master}"
 REPOSITORY_NAME="${VERSIONS_REPOSITORY/*\//}"
 URL_BASE="https://${GH_HOST}/${ASSETS_REPOSITORY}/releases/download/${RELEASE_VERSION}"
 
@@ -75,7 +80,7 @@ generateJson() {
 
   # check that nothing is blank (blank indicates something awry with build)
   for key in url name version productVersion sha1hash timestamp sha256hash; do
-    if [[ -z "${key}" ]]; then
+    if [[ -z "${!key}" ]]; then
       echo "Variable '${key}' is empty; exiting..."
       exit 1
     fi
@@ -141,10 +146,11 @@ updateLatestVersion() {
 # thank you https://www.vinaygopinath.me/blog/tech/commit-to-master-branch-on-github-using-travis-ci/
 git clone "https://${GH_HOST}/${VERSIONS_REPOSITORY}.git"
 cd "${REPOSITORY_NAME}" || { echo "'${REPOSITORY_NAME}' dir not found"; exit 1; }
-git config user.email "$( echo "${GITHUB_USERNAME}" | awk '{print tolower($0)}' )-ci@not-real.com"
-git config user.name "${GITHUB_USERNAME} CI"
+git checkout "${VERSIONS_BRANCH}"
+git config user.email "${GIT_COMMIT_EMAIL}"
+git config user.name "${GIT_COMMIT_USERNAME}"
 git remote rm origin
-git remote add origin "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@${GH_HOST}/${VERSIONS_REPOSITORY}.git" &> /dev/null
+git remote add origin "https://${GIT_AUTH_USERNAME}:${GITHUB_TOKEN}@${GH_HOST}/${VERSIONS_REPOSITORY}.git" &> /dev/null
 cd ..
 
 if [[ "${OS_NAME}" == "osx" ]]; then
@@ -193,7 +199,7 @@ fi
 
 cd "${REPOSITORY_NAME}" || { echo "'${REPOSITORY_NAME}' dir not found"; exit 1; }
 
-git pull origin master # in case another build just pushed
+git pull origin "${VERSIONS_BRANCH}" # in case another build just pushed
 git add .
 
 CHANGES=$( git status --porcelain )
@@ -205,9 +211,9 @@ if [[ -n "${CHANGES}" ]]; then
 
   git commit -m "CI update: ${dateAndMonth} (Build ${GITHUB_RUN_NUMBER})"
 
-  if ! git push origin master --quiet; then
-    git pull origin master
-    git push origin master --quiet
+  if ! git push origin "HEAD:${VERSIONS_BRANCH}" --quiet; then
+    git pull origin "${VERSIONS_BRANCH}"
+    git push origin "HEAD:${VERSIONS_BRANCH}" --quiet
   fi
 else
   echo "No changes"
