@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: Optional VSCodium-style release version override, e.g. 1.116.03009
+        description: Optional Sovereign release version override, e.g. 1.118.10101 for upstream 1.118.1 build 01
         required: false
         type: string
       publish_release:

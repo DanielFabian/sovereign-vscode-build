@@ -28,3 +28,9 @@ Manual workflow `linux-x64.yml` succeeded end-to-end on public standard GitHub-h
 The workflow produced Linux x64 tar/deb/rpm/CLI assets and checksums as a short-retention Actions artifact. Asset sizes were larger than the Copilot-removed control build because the bundled Copilot extension and its dependencies are now preserved.
 
 The necessary Copilot-preservation fixes were: avoid `set -u` around VSCodium scripts; remove `prepare_vscode.sh`'s direct `rm -rf extensions/copilot`; and preserve nested `.build/extensions/**/node_modules` directories in the compile-to-package transfer artifact. This proves the public GitHub-hosted runner strategy is viable for Linux x64.
+
+## 2026-05-06 — Sovereign release version lane
+
+The release version scheme is now a Sovereign-specific numeric lane rather than VSCodium's day/hour suffix. For upstream VS Code `major.minor.patch`, publish builds use `major.minor.(10000 + patch*100 + counter)`, where `counter` is the next available two-digit per-upstream release ordinal derived from existing GitHub release tags. Example: upstream `1.118.1`, Sovereign build 03 publishes as `1.118.10103`.
+
+This keeps all current three-component version consumers happy while avoiding ambiguity between `patch=1,counter=23` and `patch=12,counter=3`. It also avoids relying on GitHub run ids or run numbers as product semantics. The workflow still accepts an explicit `release_version` override, but it must sit inside the current upstream tag's Sovereign lane.
