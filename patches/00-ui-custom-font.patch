@@ -2472,30 +2472,6 @@ index 6f588651..3ab0ee4e 100644
 -		return 22;
 +		return FONT.sidebarSize22;
  	}
-diff --git a/src/vs/workbench/contrib/chat/browser/agentSessions/agentSessionsViewer.ts b/src/vs/workbench/contrib/chat/browser/agentSessions/agentSessionsViewer.ts
-index d4f277de..4f386424 100644
---- a/src/vs/workbench/contrib/chat/browser/agentSessions/agentSessionsViewer.ts
-+++ b/src/vs/workbench/contrib/chat/browser/agentSessions/agentSessionsViewer.ts
-@@ -53,2 +53,3 @@ import { BugIndicatingError } from '../../../../../base/common/errors.js';
- import { compareIgnoreCase } from '../../../../../base/common/strings.js';
-+import { FONT } from '../../../../../base/common/font.js';
- 
-@@ -838,5 +839,2 @@ export class AgentSessionsListDelegate implements IListVirtualDelegate<AgentSess
- 
--	static readonly ITEM_HEIGHT = 54;
--	static readonly SECTION_HEIGHT = 26;
--
- 	constructor(private readonly _approvalModel?: AgentSessionApprovalModel,
-@@ -847,3 +845,3 @@ export class AgentSessionsListDelegate implements IListVirtualDelegate<AgentSess
- 		if (isAgentSessionSection(element)) {
--			return AgentSessionsListDelegate.SECTION_HEIGHT;
-+			return FONT.sidebarSize26;
- 		}
-@@ -854,3 +852,3 @@ export class AgentSessionsListDelegate implements IListVirtualDelegate<AgentSess
- 
--		let height = AgentSessionsListDelegate.ITEM_HEIGHT;
-+		let height = FONT.sidebarSize54;
- 		const approval = this._approvalModel?.getApproval(element.resource).get();
 diff --git a/src/vs/workbench/contrib/chat/browser/widget/chatContentParts/chatChangesSummaryPart.ts b/src/vs/workbench/contrib/chat/browser/widget/chatContentParts/chatChangesSummaryPart.ts
 index cc7bb156..f260d0e3 100644
 --- a/src/vs/workbench/contrib/chat/browser/widget/chatContentParts/chatChangesSummaryPart.ts
@@ -3954,25 +3930,3 @@ index 27c65807..0feb6465 100644
 -		return 22;
 +		return FONT.sidebarSize22;
  	}
-diff --git a/src/vs/workbench/contrib/welcomeAgentSessions/browser/agentSessionsWelcome.ts b/src/vs/workbench/contrib/welcomeAgentSessions/browser/agentSessionsWelcome.ts
-index 0e3e5ccd..c7d20959 100644
---- a/src/vs/workbench/contrib/welcomeAgentSessions/browser/agentSessionsWelcome.ts
-+++ b/src/vs/workbench/contrib/welcomeAgentSessions/browser/agentSessionsWelcome.ts
-@@ -49,3 +49,2 @@ import { AgentSessionsControl, IAgentSessionsControlOptions } from '../../chat/b
- import { AgentSessionsFilter } from '../../chat/browser/agentSessions/agentSessionsFilter.js';
--import { AgentSessionsListDelegate } from '../../chat/browser/agentSessions/agentSessionsViewer.js';
- import { HoverPosition } from '../../../../base/browser/ui/hover/hoverWidget.js';
-@@ -62,2 +61,3 @@ import { toErrorMessage } from '../../../../base/common/errorMessage.js';
- import { ILogService } from '../../../../platform/log/common/log.js';
-+import { FONT } from '../../../../base/common/font.js';
- 
-@@ -830,3 +830,3 @@ export class AgentSessionsWelcomePage extends EditorPane {
- 		);
--		const sessionsHeight = visibleSessions * AgentSessionsListDelegate.ITEM_HEIGHT;
-+		const sessionsHeight = visibleSessions * FONT.sidebarSize22;
- 		this.sessionsControl.layout(sessionsHeight, sessionsWidth);
-@@ -835,3 +835,3 @@ export class AgentSessionsWelcomePage extends EditorPane {
- 		// Visual height = ceil(n/2) * ITEM_HEIGHT, so offset = floor(n/2) * ITEM_HEIGHT
--		const marginOffset = Math.floor(visibleSessions / 2) * AgentSessionsListDelegate.ITEM_HEIGHT;
-+		const marginOffset = Math.floor(visibleSessions / 2) * FONT.sidebarSize22;
- 		this.sessionsControl.element!.style.marginBottom = `-${marginOffset}px`;
