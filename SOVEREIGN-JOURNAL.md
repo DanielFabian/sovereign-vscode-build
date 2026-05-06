@@ -34,3 +34,9 @@ The necessary Copilot-preservation fixes were: avoid `set -u` around VSCodium sc
 The release version scheme is now a Sovereign-specific numeric lane rather than VSCodium's day/hour suffix. For upstream VS Code `major.minor.patch`, publish builds use `major.minor.(10000 + patch*100 + counter)`, where `counter` is the next available two-digit per-upstream release ordinal derived from existing GitHub release tags. Example: upstream `1.118.1`, Sovereign build 03 publishes as `1.118.10103`.
 
 This keeps all current three-component version consumers happy while avoiding ambiguity between `patch=1,counter=23` and `patch=12,counter=3`. It also avoids relying on GitHub run ids or run numbers as product semantics. The workflow still accepts an explicit `release_version` override, but it must sit inside the current upstream tag's Sovereign lane.
+
+## 2026-05-06 — Workflow surface pruned to Sovereign-owned CI
+
+The old local `vscodium/` clone was removed after verifying the build repo's `vscodium-upstream` remote points at GitHub and no local path references remain.
+
+The GitHub Actions surface was reduced to the workflows we currently own: `linux-x64.yml` for manual build/publish, `verify-publisher-app.yml` for release-environment GitHub App validation, and `lint-zizmor.yml` for workflow-file linting. Inherited VSCodium CI/publish/moderation/smoke workflows were deleted because they target old `master`/`insider` branch semantics, VSCodium release infrastructure, AUR/Snap/Winget flows, scheduled moderation, unavailable self-hosted labels, and/or the old Copilot-deleted artifact shape.
