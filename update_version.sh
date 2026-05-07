@@ -54,8 +54,8 @@ fi
 # `timestamp` is $(node -e 'console.log(Date.now())')
 # `sha256hash` in <filename>.sha256
 
-VERSIONS_REPOSITORY="${VERSIONS_REPOSITORY:-${ORG_NAME}/versions}"
-VERSIONS_BRANCH="${VERSIONS_BRANCH:-master}"
+VERSIONS_REPOSITORY="${VERSIONS_REPOSITORY:-${GH_REPO_PATH:-${ASSETS_REPOSITORY:-${ORG_NAME}/sovereign-vscode-build}}}"
+VERSIONS_BRANCH="${VERSIONS_BRANCH:-main}"
 REPOSITORY_NAME="${VERSIONS_REPOSITORY/*\//}"
 URL_BASE="https://${GH_HOST}/${ASSETS_REPOSITORY}/releases/download/${RELEASE_VERSION}"
 

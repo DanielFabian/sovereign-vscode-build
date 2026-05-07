@@ -992,6 +992,11 @@ load-bearing fields are: `nameShort`, `nameLong`, `applicationName`,
 `serverApplicationName`, `serverDataFolderName`,
 `tunnelApplicationName`. ~9 fields.
 
+Protocol exception: the final stable product intentionally keeps
+`urlProtocol = vscode` for web/auth compatibility. Side-by-side identity
+comes from the binary, display name, data dirs, server dirs, icons, and update
+channel; `vscode://` is the one deliberate conflict with vanilla VS Code.
+
 **All already settable through the existing VSCodium script.** We just
 need to fork the script's hardcoded "VSCodium"/"codium" values to
 "Sovereign Code"/"scode" or whatever final brand.
@@ -1001,17 +1006,19 @@ patch stack is *not* what we need. The branding logic is in the
 build *script*, not in VS Code patches. We just configure it
 differently.
 
-## B. Updates via our CDN
+## B. Updates via our GitHub release metadata
 
-**Status: solved, machinery already in place.**
+**Status: first-wave wired.**
 
 `prepare_vscode.sh` already sets:
 
-- `product.updateUrl = https://raw.githubusercontent.com/${ORG_NAME}/versions/...`
+- `product.updateUrl = https://raw.githubusercontent.com/${GH_REPO_PATH}/refs/heads/main`
 - `product.downloadUrl = https://github.com/${ASSETS_REPOSITORY}/releases`
 
-Both env-driven. Already wired through GitHub Releases as the CDN. No
-sovereign patch needed — just point ORG_NAME at our org.
+Both are env-driven. For Sovereign Code, `GH_REPO_PATH` and
+`ASSETS_REPOSITORY` both point at `DanielFabian/sovereign-vscode-build`, so
+release assets and `latest.json` metadata live in the build repo rather than a
+separate `versions` repository.
 
 ## C. Coexistence with marketplace `GitHub.copilot-chat`
 

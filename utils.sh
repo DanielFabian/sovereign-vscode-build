@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 
-APP_NAME="${APP_NAME:-VSCodium}"
+APP_NAME="${APP_NAME:-SovereignCode}"
+APP_DISPLAY_NAME="${APP_DISPLAY_NAME:-Sovereign Code}"
 APP_NAME_LC="$( echo "${APP_NAME}" | awk '{print tolower($0)}' )"
-ASSETS_REPOSITORY="${ASSETS_REPOSITORY:-VSCodium/vscodium}"
-BINARY_NAME="${BINARY_NAME:-codium}"
-GH_REPO_PATH="${GH_REPO_PATH:-VSCodium/vscodium}"
-ORG_NAME="${ORG_NAME:-VSCodium}"
+ASSETS_REPOSITORY="${ASSETS_REPOSITORY:-DanielFabian/sovereign-vscode-build}"
+BINARY_NAME="${BINARY_NAME:-scode}"
+GH_REPO_PATH="${GH_REPO_PATH:-DanielFabian/sovereign-vscode-build}"
+ORG_NAME="${ORG_NAME:-DanielFabian}"
 TUNNEL_APP_NAME="${TUNNEL_APP_NAME:-"${BINARY_NAME}-tunnel"}"
 
 if [[ "${VSCODE_QUALITY}" == "insider" ]]; then
-  GLOBAL_DIRNAME="${GLOBAL_DIRNAME:-"${APP_NAME_LC}"}-insiders"
+  GLOBAL_DIRNAME="${GLOBAL_DIRNAME:-"${BINARY_NAME}"}-insiders"
 else
-  GLOBAL_DIRNAME="${GLOBAL_DIRNAME:-"${APP_NAME_LC}"}"
+  GLOBAL_DIRNAME="${GLOBAL_DIRNAME:-"${BINARY_NAME}"}"
 fi
 
 # All common functions can be added to this file
@@ -24,7 +25,8 @@ apply_patch() {
 
   cp $1{,.bak}
 
-  replace "s|!!APP_NAME!!|${APP_NAME}|g" "$1"
+  replace "s|!!APP_NAME!!|${APP_DISPLAY_NAME}|g" "$1"
+  replace "s|!!APP_DISPLAY_NAME!!|${APP_DISPLAY_NAME}|g" "$1"
   replace "s|!!APP_NAME_LC!!|${APP_NAME_LC}|g" "$1"
   replace "s|!!ASSETS_REPOSITORY!!|${ASSETS_REPOSITORY}|g" "$1"
   replace "s|!!BINARY_NAME!!|${BINARY_NAME}|g" "$1"

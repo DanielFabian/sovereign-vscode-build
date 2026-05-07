@@ -3,8 +3,14 @@
 
 exists() { type -t "$1" &> /dev/null; }
 
-export APP_NAME="VSCodium"
+export APP_NAME="SovereignCode"
+export APP_DISPLAY_NAME="Sovereign Code"
+export ASSETS_REPOSITORY="DanielFabian/sovereign-vscode-build"
+export BINARY_NAME="scode"
 export CI_BUILD="no"
+export GH_REPO_PATH="DanielFabian/sovereign-vscode-build"
+export GLOBAL_DIRNAME="scode"
+export ORG_NAME="DanielFabian"
 export OS_NAME="linux"
 export SHOULD_BUILD="yes"
 export SKIP_ASSETS="yes"
