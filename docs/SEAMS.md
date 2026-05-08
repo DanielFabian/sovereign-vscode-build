@@ -1154,3 +1154,55 @@ applied patches. The actual sovereign rebrand is:
 Total code surface for full coexistence: < 20 LOC.
 
 Phase 2 mission can start with this concrete shopping list.
+
+### Addendum 2026-05-08 — auth-rename trace verified
+
+Investigated whether renaming `defaultChatAgent.chatExtensionId` from
+`GitHub.copilot-chat` to `<our-publisher>.copilot-chat` (and the bundled
+extension's publisher correspondingly) preserves Copilot auth and
+corporate model access. **Pure source read, no test.** Confirmed:
+
+- **`trustedExtensionAuthAccess`** is consulted in
+  [`authenticationAccessService.ts:50-69, 82-110`](../../vscode/src/vs/workbench/services/authentication/browser/authenticationAccessService.ts).
+  Gate is `trustedSet.includes(ExtensionIdentifier.toKey(extensionId))`
+  — `toKey` is lowercase normalization, that's it. **No publisher field,
+  no signature check, no marketplace lookup.** Mirroring the new id in
+  the allowlist is sufficient.
+- **`chatExtensionId`** has 5 consumers in core
+  ([`mainThreadLanguageModelTools.ts:125-127`](../../vscode/src/vs/workbench/api/browser/mainThreadLanguageModelTools.ts),
+  [`languageModelToolsContribution.ts:260-263, 302-304`](../../vscode/src/vs/workbench/contrib/chat/common/tools/languageModelToolsContribution.ts),
+  [`extensionGalleryService.ts:2008-2016`](../../vscode/src/vs/platform/extensionManagement/common/extensionGalleryService.ts),
+  [`defaultAccount.ts:90-92`](../../vscode/src/vs/workbench/services/accounts/browser/defaultAccount.ts),
+  [`configurationRegistry.ts:1025-1026`](../../vscode/src/vs/platform/configuration/common/configurationRegistry.ts)).
+  All pure id-equality. **None reach the wire.**
+- **CAPI request UA** is constructed in
+  [`baseFetchFetcher.ts:29`](../../vscode/extensions/copilot/src/platform/networking/node/baseFetchFetcher.ts)
+  (and twins) as `` `GitHubCopilotChat/${envService.getVersion()}` ``.
+  `getVersion()` reads
+  [`packageJson.version`](../../vscode/extensions/copilot/src/platform/env/common/packagejson.ts)
+  from the bundled extension's own `package.json` (`0.47.0` today). It
+  is *not* the editor version, the Sovereign version, or anything
+  derived from publisher/commit. **The only wire-visible identity is
+  this single string and we do not mutate it.**
+- **`EnvServiceImpl.extensionId`** (`${publisher}.${name}`) does change
+  post-rename, but its only consumer
+  ([`languageModelAccess.ts:469`](../../vscode/extensions/copilot/src/extension/conversation/vscode-node/languageModelAccess.ts))
+  is a self-comparison `extensionId === this._envService.extensionId`
+  to skip safety-rule injection when the caller is the bundled extension
+  itself. Symmetric, stays self-consistent post-rename, doesn't reach
+  the wire.
+
+**Strongest falsifier**: a Sovereign Code build with random commit
+hashes and `chatExtensionId = GitHub.copilot-chat` already authenticates
+against corporate Copilot today. The editor does not sign-verify the
+bundled extension at runtime; CAPI does not gate on commit, editor
+version, or build identity. Combined with the source trace, the rename
+is provably safe for auth and corporate model access.
+
+**One wire-visible knob to flag for the future**: if we ever bump
+`extensions/copilot/package.json:version` (e.g. to ship a Sovereign-
+tagged build to marketplace as `<publisher>.copilot-chat@0.47.0-sov.1`),
+the UA shifts to `GitHubCopilotChat/0.47.0-sov.1`. Plausibly safe (CAPI
+is unlikely to do exact-match version checks), but a known signal that
+*could* gate. Trivially reversible with a one-line patch hardcoding the
+UA version.
