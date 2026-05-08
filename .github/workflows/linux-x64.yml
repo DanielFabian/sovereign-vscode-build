@@ -189,35 +189,14 @@ jobs:
           set -exo pipefail
           ./release.sh
 
-      - name: Create publisher GitHub App token
-        id: versions-token
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ vars.SOVEREIGN_PUBLISHER_CLIENT_ID }}
-          private-key: ${{ secrets.SOVEREIGN_PUBLISHER_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-          repositories: sovereign-vscode-build
-          permission-contents: write
-
-      - name: Resolve GitHub App bot user
-        id: app-user
-        shell: bash
-        env:
-          GH_TOKEN: ${{ steps.versions-token.outputs.token }}
-          APP_SLUG: ${{ steps.versions-token.outputs.app-slug }}
-        run: |
-          set -euo pipefail
-          user_id=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
-          echo "user_id=${user_id}" >> "$GITHUB_OUTPUT"
-
       - name: Update release metadata
         shell: bash
         env:
-          GH_TOKEN: ${{ steps.versions-token.outputs.token }}
-          GITHUB_TOKEN: ${{ steps.versions-token.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
           GIT_AUTH_USERNAME: x-access-token
-          GIT_COMMIT_USERNAME: ${{ steps.versions-token.outputs.app-slug }}[bot]
-          GIT_COMMIT_EMAIL: ${{ steps.app-user.outputs.user_id }}+${{ steps.versions-token.outputs.app-slug }}[bot]@users.noreply.github.com
+          GIT_COMMIT_USERNAME: github-actions[bot]
+          GIT_COMMIT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: |
           set -exo pipefail
           ./update_version.sh
