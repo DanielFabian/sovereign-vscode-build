@@ -1,0 +1,14 @@
+{
+  "features": {
+    "ghcr.io/danielfabian/sovereign-codespaces/host-ssh-keys:latest": {
+      "version": "0.1.0",
+      "resolved": "ghcr.io/danielfabian/sovereign-codespaces/host-ssh-keys@sha256:985d8f2723cc628061410b6e8330282c75cc5d35f61b992a134ea641f4e47935",
+      "integrity": "sha256:985d8f2723cc628061410b6e8330282c75cc5d35f61b992a134ea641f4e47935"
+    },
+    "ghcr.io/danielfabian/sovereign-codespaces/nix-via-host:latest": {
+      "version": "0.2.0",
+      "resolved": "ghcr.io/danielfabian/sovereign-codespaces/nix-via-host@sha256:bee0a9f8ceccbad9cf6a7d23c4b77899927ec51e139b44ff9a482d743757997b",
+      "integrity": "sha256:bee0a9f8ceccbad9cf6a7d23c4b77899927ec51e139b44ff9a482d743757997b"
+    }
+  }
+}

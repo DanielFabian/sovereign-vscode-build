@@ -1,0 +1,53 @@
+{
+  "name": "Sovereign VS Code build",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "..",
+    "args": {
+      "BASE_IMAGE": "vscodium/vscodium-linux-build-agent:focal-x64",
+      "USERNAME": "vscode",
+      "USER_UID": "1000",
+      "USER_GID": "1000"
+    }
+  },
+
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true,
+
+  "features": {
+    "ghcr.io/danielfabian/sovereign-codespaces/nix-via-host:latest": {},
+    "ghcr.io/danielfabian/sovereign-codespaces/host-ssh-keys:latest": {}
+  },
+
+  "runArgs": [
+    "--init",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges:true",
+    "--shm-size=2g"
+  ],
+
+  "containerEnv": {
+    "NODE_OPTIONS": "--max-old-space-size=8192",
+    "VSCODE_SKIP_NODE_VERSION_CHECK": "yes"
+  },
+
+  "mounts": [
+    "source=sovereign-vscode-build-cache,target=/home/vscode/.cache,type=volume",
+    "source=sovereign-vscode-build-cargo,target=/home/vscode/.cargo,type=volume",
+    "source=sovereign-vscode-build-npm,target=/home/vscode/.npm,type=volume"
+  ],
+
+  "postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && git config --global --add safe.directory ${containerWorkspaceFolder}/vscode || true",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "editorconfig.editorconfig",
+        "timonwong.shellcheck"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  }
+}
