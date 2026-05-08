@@ -4,10 +4,10 @@ This document records the first Sovereign patch-stack split. It is intentionally
 
 ## Current split
 
-- Active root patches: `28` files matching `patches/*.patch`
+- Active root patches: `26` files matching `patches/*.patch`
 - Inactive/reference patches: files renamed to `patches/*.patch.no`
 - Validation: `python3 dev/validate-patches.py --timeout 30`
-- Last validated result: all 28 active patches apply cleanly in a temporary VS Code worktree.
+- Last validated result: all 26 active patches apply cleanly in a temporary VS Code worktree.
 
 ## Agreed product semantics
 
@@ -46,6 +46,13 @@ Pre-existing inactive patches remain inactive and were not part of this first-wa
 - `00-build-update-electron.patch.no`
 - `40-cli-use-reh-archive.patch.no`
 
+## Second-wave deactivations
+
+| Patch | Decision | Rationale |
+| --- | --- | --- |
+| `00-brand-remove-branding.patch.no` | Drop | 1549-line cosmetic scrub of `VS Code` → `Sovereign Code` in builtin extension descriptions, language-server trace docs, settings hints, and Inno Setup install messages. Identity surfaces (`productName`, `applicationName`, `urlProtocol`, package metadata) are already set by `prepare_vscode.sh`, not by this patch. Several rewrites were actively wrong: the extension linter told authors to "reach out to the Sovereign Code team" about vscode API proposals, and html-language-features announced upstream built-in features as Sovereign features. Validator confirms no adjacency dependents. |
+| `00-ui-report-issue.patch.no` | Drop | Rewired the issue reporter to query our GitHub repo for duplicate issues (instead of an MS-internal `vscode-probot` Azure endpoint) and rewrote the wiki link / a few cosmetic strings. Sovereign has two maintainers and no external user issue intake, so the duplicate-search target is moot, our wiki page does not exist (the rewrite produced a 404), and the cosmetic strings are the same category we just dropped. Shipping upstream's issue reporter unchanged is strictly cheaper to maintain. |
+
 ## Active patches after first wave
 
 These remain active for now. Several are still candidates for later reduction; they stayed active because they are build-pipeline, update-channel, packaging, security, or nontrivial dependency substitutions rather than direct FLOSS-purity removals.
@@ -53,7 +60,6 @@ These remain active for now. Several are still candidates for later reduction; t
 | Patch | Current disposition |
 | --- | --- |
 | `00-binary-fix-name.patch` | Keep: binary/package naming behavior. |
-| `00-brand-remove-branding.patch` | Review later: large string-scrub patch; likely reducible once product-script branding is enough. |
 | `00-build-disable-esbuild.patch` | Keep for now: inherited build compatibility toggle. |
 | `00-build-disable-mangle.patch` | Keep for now: inherited build compatibility toggle. |
 | `00-build-fix-npm-preinstall.patch` | Keep: build fix. |
@@ -68,7 +74,6 @@ These remain active for now. Several are still candidates for later reduction; t
 | `00-tunnel-disable-recommendation.patch` | Keep for now: review with tunnel/CLI semantics. |
 | `00-ui-custom-font.patch` | Review later: large UI feature patch, not part of first-wave service restoration. |
 | `00-ui-improve-eol-banner.patch` | Keep: UI improvement. |
-| `00-ui-report-issue.patch` | Review later: should probably be narrowed to Sovereign issue routing. |
 | `00-update-rename-cache-path.patch` | Keep: avoids Windows update cache collisions. |
 | `00-vsce-use-custom-lib.patch` | Review later: VSCodium package substitution crossing signing/packaging. |
 | `10-version-add-release.patch` | Keep: Sovereign version encoding/release packaging. |
